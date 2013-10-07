@@ -9,6 +9,7 @@ abstract class Kohana_Sitemap_URL implements Kohana_Sitemap_Interface
 		'changefreq' => NULL,
 		'priority'   => NULL,
 	);
+	private $alternates = array();
 
 	/**
 	 * URL of the page. This URL must begin with the protocol (such as http) and end
@@ -92,6 +93,31 @@ abstract class Kohana_Sitemap_URL implements Kohana_Sitemap_Interface
 
 		return $this;
 	}
+	/**
+	 * Submit rel-alternate-hreflang annotations in a Sitemap
+	 * @see https://support.google.com/webmasters/answer/2620865?hl=en
+	 * @param string $lang
+	 * @param string $location 
+	 */
+	public function set_alternate($lang,$location)
+	{
+		if ( ! Valid::max_length($location, 2048))
+		{
+			throw new LengthException('The location was too long, maximum length of 2,048 characters.');
+		}
+
+		$location = Sitemap::encode($location);
+
+		if ( ! Valid::url($location))
+		{
+			throw new InvalidArgumentException('The location was not a valid URL');
+		}
+
+		$alternate = array('lang' => $lang,'location' => $location);
+		$this->alternates[] = $alternate;
+
+		return $this;
+	}
 
 	/**
 	 * @var Kohana_Sitemap_Interface
@@ -128,6 +154,16 @@ abstract class Kohana_Sitemap_URL implements Kohana_Sitemap_Interface
 			if (NULL !== $value)
 			{
 				$url_node->appendChild(new DOMElement($name, $value));
+			}
+		}
+		if ($this->alternates != NULL)
+		{
+			foreach($this->alternates as $k => $alternate)
+			{
+				$xhtmllink = $url_node->appendChild(new DOMElement('link'));
+				$xhtmllink->setAttributeNode(new DOMAttr('rel', 'alternate'));
+				$xhtmllink->setAttributeNode(new DOMAttr('hreflang', $alternate['lang']));
+				$xhtmllink->setAttributeNode(new DOMAttr('href', $alternate['location']));
 			}
 		}
 

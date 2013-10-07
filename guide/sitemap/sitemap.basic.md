@@ -41,9 +41,37 @@ The above example should output the following
 # Requirements
 
 | Argument         | Requirements                                                                                                    |
-|------------------|-----------------------------------------------------------------------------------------------------------------|
+|------------------------------------------------------------------------------------------------------------------------------------|
 | loc              | Maximum length of 2,048 characters.                                                                             |
 |                  | Must pass Validate::url                                                                                         |
 | last mod         | Unixtime stamp                                                                                                  |
 | change frequency | Must be one of the following: **always**, **hourly**, **daily**, **weekly**, **monthly**, **yearly**, **never** |
 | priority         | Must be a numeric value between **0 (zero)** and **1 (one)** and is **inclusive**.                              |
+| alternate        | lang , location (see loc)                                                                                       |
+
+
+# Alternate
+
+You can add alternate for multi-lingual page. Ex:
+
+    $url->set_alternate('fr-fr','http://google.fr');
+
+Output: 
+
+	<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+		<url>
+			<loc>http://google.com</loc>
+			<lastmod>2010-06-17T19:48:12+01:00</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>1</priority>
+			<link rel="alternate" hreflang="fr-fr" href="http://google.fr"/>
+		</url>
+	</urlset>
+
+Don't forget to add a set_alternate for the current page:
+
+      $url->set_alternate('en','http://google.com');
+
+As said here:
+
+https://support.google.com/webmasters/answer/2620865?hl=en
